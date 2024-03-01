@@ -5,11 +5,8 @@ node_modules
 /cache
 /artifacts
 
-/gas-report.txt
-/coverage.json
-
 # TypeChain files
-/typechain  
+/typechain
 /typechain-types
 
 # solidity-coverage files
