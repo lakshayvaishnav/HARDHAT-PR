@@ -10,6 +10,7 @@
     "hardhat-deploy-ethers": "^0.4.1"
   },
   "dependencies": {
-    "@chainlink/contracts": "^0.8.0"
+    "@chainlink/contracts": "^0.8.0",
+    "dotenv": "^16.4.5"
   }
 }
