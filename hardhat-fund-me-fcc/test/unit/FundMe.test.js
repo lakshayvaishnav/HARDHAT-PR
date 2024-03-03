@@ -55,8 +55,32 @@ describe("fund me", function () {
     });
     it("withdraw eth from single founder", async function () {
       //Arrange
+      const startingFundMeBalance = await ethers.provider.getBalance(
+        fundMe.target
+      );
+      const startingDeployerBalance = await ethers.provider.getBalance(
+        deployer
+      );
+
       //Act
+      const transactionResponse = await fundMe.withdraw();
+      const transactionReceipt = await transactionResponse.wait();
+      console.log(transactionReceipt);
+      const { gasUsed, cumulativeGasUsed } = transactionReceipt;
+      const gasCost = gasUsed * cumulativeGasUsed;
+      // const gasCost = BigInt(gasUsed) * BigInt(effectiveGasPrice);
+
+      const endingFundMeBalance = await ethers.provider.getBalance(
+        fundMe.target
+      );
+      const endingDeployerBalance = await ethers.provider.getBalance(deployer);
+
       //Assert
+      assert.equal(endingFundMeBalance, 0);
+      assert.equal(
+        (startingFundMeBalance + (startingDeployerBalance)).toString(),
+        (endingDeployerBalance + (gasCost)).toString()
+      );
     });
   });
 });
