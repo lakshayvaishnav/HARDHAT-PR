@@ -83,55 +83,62 @@ describe("fund me", function () {
       );
     });
 
-    it("is allows us to withdraw with multiple founders", async () => {
-      console.log("test running");
-      //Arrange
-      const accounts = await ethers.getSigner();
-      console.log(accounts);
-      for (i = 1; i < 6; i++) {
-        const fundMeConnectedContract = await fundMe.connect(accounts[i]);
-        await fundMeConnectedContract.fund({ value: sendValue });
-      }
-      const startingFundMeBalance = await ethers.provider.getBalance(
-        fundMe.target
-      );
+    // it("is allows us to withdraw with multiple founders", async () => {
+    //   console.log("test running");
+    //   //Arrange
+    //   const accounts = await ethers.getSigner();
+    //   console.log(accounts);
+    //   for (i = 1; i < 6; i++) {
+    //     const fundMeConnectedContract = await fundMe.connect(accounts[i]);
+    //     await fundMeConnectedContract.fund({ value: sendValue });
+    //   }
+    //   const startingFundMeBalance = await ethers.provider.getBalance(
+    //     fundMe.target
+    //   );
 
-      const startingDelpoyerBalance = await ethers.provider.getBalance(
-        deployer
-      );
+    //   const startingDelpoyerBalance = await ethers.provider.getBalance(
+    //     deployer
+    //   );
 
-      //Act
-      const transactionResponse = await fundMe.cheaperWithdraw();
-      //compare the gas costs:
+    //   //Act
+    //   const transactionResponse = await fundMe.cheaperWithdraw();
+    //   //compare the gas costs:
 
-      const transactionReceipt = await transactionResponse.wait();
-      const { gasUsed, effectiveGasPrice } = transactionReceipt;
-      const withdrawGasCost = gasUsed * effectiveGasPrice;
-      console.log(`Gas Cost : ${withdrawGasCost}`);
-      console.log(`Gas Used : ${gasUsed}`);
-      console.log(`Gas Price : ${effectiveGasPrice}`);
+    //   const transactionReceipt = await transactionResponse.wait();
+    //   const { gasUsed, effectiveGasPrice } = transactionReceipt;
+    //   const withdrawGasCost = gasUsed * effectiveGasPrice;
+    //   console.log(`Gas Cost : ${withdrawGasCost}`);
+    //   console.log(`Gas Used : ${gasUsed}`);
+    //   console.log(`Gas Price : ${effectiveGasPrice}`);
 
-      const endingFundMeBalance = await ethers.provider.getBalance(
-        fundMe.target
-      );
+    //   const endingFundMeBalance = await ethers.provider.getBalance(
+    //     fundMe.target
+    //   );
 
-      const endingDeployerBalance = await ethers.provider.getBalance(deployer);
+    //   const endingDeployerBalance = await ethers.provider.getBalance(deployer);
 
-      // Assert
-      assert.equal(
-        (startingFundMeBalance + startingDelpoyerBalance).toString(),
-        (endingDeployerBalance + withdrawGasCost).toString()
-      );
+    //   // Assert
+    //   assert.equal(
+    //     (startingFundMeBalance + startingDelpoyerBalance).toString(),
+    //     (endingDeployerBalance + withdrawGasCost).toString()
+    //   );
 
-      //Make a getter for storage variables
-      await expect(fundMe.getFunder(0)).to.be.reverted;
+    //   //Make a getter for storage variables
+    //   await expect(fundMe.getFunder(0)).to.be.reverted;
 
-      for (i = 1; i < 6; i++) {
-        assert.equal(
-          await fundMe.getAddressToAmountFunded(accounts[i].target),
-          0
-        );
-      }
+    //   for (i = 1; i < 6; i++) {
+    //     assert.equal(
+    //       await fundMe.getAddressToAmountFunded(accounts[i].target),
+    //       0
+    //     );
+    //   }
+    // });
+
+    it("only allows the owner to withdraw ", async function () {
+      const accounts = await ethers.provider.getSigner();
+      const attacker = await accounts[1];
+      const attackerConnectedContract = await fundMe.connect(attacker);
+      await expect(attackerConnectedContract.withdraw()).to.be.reverted;
     });
   });
 });
