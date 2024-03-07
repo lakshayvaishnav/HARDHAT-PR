@@ -1,31 +1,32 @@
 const { network } = require("hardhat");
-const {
-  TASK_TEST_RUN_MOCHA_TESTS,
-} = require("hardhat/builtin-tasks/task-names");
+const { networkConfig } = require("../helper-hardhat-config");
+require("dotenv").config();
 
-module.exports = async ({ getNamedAccounts, deployments }) => {
+module.exports = async (hre) => {
+  const { deployments, getNameAccounts } = hre;
   const { deploy, log } = deployments;
   const { deployer } = await getNamedAccounts();
-  const chainId = network.config.chainId;
 
+  const chainId = network.config.chainId;
+  console.log("deploy scripts running fundme.js ", chainId);
+
+  let ethUdePriceFeedAddress;
   if (chainId === 31337) {
-    const ethUSDAggregator = await deployments.get("MockV3Aggregator");
-    ethUSDPriceFeedAddress = ethUSDAggregator.address;
+    const ethUdeAggregator = await deployments.get("MockV3Aggregator");
+    ethUsdPriceFeedAddress = ethUdeAggregator.address;
+    console.log(ethUdePriceFeedAddress);
   } else {
-    ethUsdPriceFeedAddress = network.config[chainId]["ethUsdPriceFeed"];
+    ethUsdPriceFeedAddress = networkConfig[chainId]["ethUsdPriceFeed"];
   }
 
-  log("_____________________________________________");
-  log("deploying fund me and waiting for confirmation....");
-
+  log("----------------------------------------------------------------");
+  log("Deploying FundMe and waiting for confirmations....");
   const fundMe = await deploy("FundMe", {
     from: deployer,
-    args: [ethUSDPriceFeedAddress],
+    args: [ethUsdPriceFeedAddress],
     log: true,
-    // we need to wait if on a live network so we can verify properly
+    deterministicDeployment: false,
     waitConfirmations: network.config.blockConfirmations || 1,
   });
-  log("Fund Me deployed at : ", fundMe.address);
+  console.log("fund me deployed at ", fundMe.address);
 };
-
-module.exports.tags = ["all", "fundme"];
