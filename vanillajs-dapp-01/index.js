@@ -9,6 +9,7 @@ const balanceButton = document.getElementById('balanceButton')
 // click events
 connectButton.onclick = connect
 withdrawButton.onclick = withdraw
+fundButton.onclick = fund
 
 async function connect() {
   if (typeof window.ethereum !== 'undefined') {
@@ -25,6 +26,26 @@ async function connect() {
   }
 }
 
+async function fund() {
+  console.log(`funding...`)
+  const ethAmount = '77'
+  if (typeof window.ethereum !== 'undefined') {
+    const provider = new ethers.BrowserProvider(window.ethereum) //browser provider instead of ethers.provider.web3provider
+    const signer = await provider.getSigner()
+    console.log(signer)
+    const contract = new ethers.Contract(contractAddress, abi, signer)
+    try {
+      const transactionResponse = await contract.fund({
+        value: ethers.parseEther(ethAmount),
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  } else {
+    connect.log('maa chudaye')
+  }
+}
+
 async function withdraw() {
   console.log(`withdrawing...`)
   if (typeof window.ethereum !== 'undefined') {
@@ -33,14 +54,9 @@ async function withdraw() {
     const signer = await provider.getSigner()
     console.log(signer)
     const contract = new ethers.Contract(contractAddress, abi, signer)
-    // try {
-    //   console.log('tranasaction : - ')
-    //   const transactionResponse = await contract.withdraw()
-    //   //   await listenForTransactionMine(transactionResponse, provider)
-    //   console.log(transactionResponse)
-    // } catch (error) {
-    //   console.log(error)
-    // }
+    const transactionResponse = await contract.fund({
+      value: ethers.parseEther(ethAmount),
+    })
   } else {
     // connect.log('maa chudaye')
   }
