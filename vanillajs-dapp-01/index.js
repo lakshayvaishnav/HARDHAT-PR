@@ -66,13 +66,15 @@ async function withdraw() {
   console.log(`withdrawing...`)
   if (typeof window.ethereum !== 'undefined') {
     const provider = new ethers.BrowserProvider(window.ethereum) //browser provider instead of ethers.provider.web3provider
-    provider.send('eth_requestAccounts', [])
     const signer = await provider.getSigner()
-    console.log(signer)
+    console.log('the signer is : ', signer)
     const contract = new ethers.Contract(contractAddress, abi, signer)
-    const transactionResponse = await contract.fund({
-      value: ethers.parseEther(ethAmount),
-    })
+    try {
+      const transactionResponse = await contract.withdraw()
+      await listenForTransactionMine(transactionResponse, provider)
+    } catch (error) {
+      console.log(error)
+    }
   } else {
     // connect.log('maa chudaye')
   }
