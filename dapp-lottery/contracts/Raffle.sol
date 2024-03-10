@@ -9,7 +9,7 @@ error Raffle__TransferFailed();
 error Raffle__NotOpen();
 error Raffle__UpkeepNotNeeded(uint256 currentBalance, uint256 numPlayers, uint256 rafflestate);
 
-contract Raffle is VRFConsumerBaseV2, AutomationCompatible {
+abstract contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
     // Type Declarations
     enum RaffleState {
         OPEN,
@@ -75,17 +75,26 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatible {
      4. the lottery should have be in "opne" state.
      */
     function checkUpKeep(
-        bytes calldata /* checkData */
-    ) public override returns (bool upKeepNeeded, bytes memory /* performData */) {
+        bytes memory
+    )
+        public
+        view
+        returns (
+            /* checkData */
+            bool upKeepNeeded,
+            bytes memory /* performData */
+        )
+    {
         bool isOpen = (RaffleState.OPEN == s_raffleState);
         bool timePassed = ((block.timestamp - s_lastTimeStamp) > i_interval);
         bool hasPlayers = (s_players.length > 0);
         bool hasBalance = address(this).balance > 0;
         upKeepNeeded = (isOpen && hasPlayers && hasBalance && timePassed);
+        return (upKeepNeeded, "0x0");
     }
 
     function performUpkeep(bytes calldata /* performData */) external override {
-        (bool upKeepNeeded, ) = checkUpKeep("");
+        (bool upKeepNeeded, ) = checkUpKeep(" ");
         if (!upKeepNeeded) {
             revert Raffle__UpkeepNotNeeded(
                 address(this).balance,
@@ -132,5 +141,17 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatible {
 
     function getRecentWinner() public view returns (address) {
         return s_recentWinners;
+    }
+
+    function getRaffleState() public view returns (RaffleState) {
+        return s_raffleState;
+    }
+
+    function getNumWords() public pure returns (uint256) {
+        return NUM_WORDS;
+    }
+
+    function getLastTimeStamp() public view returns (uint256) {
+        return s_lastTimeStamp;
     }
 }
