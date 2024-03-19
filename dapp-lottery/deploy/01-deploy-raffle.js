@@ -18,6 +18,7 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
             contract.address,
             signer
         )
+        console.log("getcontract : " + contract)
         vrfCoordinatorV2Adress = contract.address
         const transactionResponse = await vrfCoordinatorV2Mock.createSubscription()
         const transactionReciept = await transactionResponse.wait()
