@@ -3,6 +3,7 @@ import { ConnectButton } from "web3uikit";
 const Header = () => {
   return (
     <div>
+        DECENTRALIZED LOTTERY
       <ConnectButton moralisAuth={false} />
     </div>
   );
