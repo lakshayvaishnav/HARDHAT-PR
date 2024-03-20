@@ -30,13 +30,13 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
         vrfCoordinatorV2Adress = networkConfig[chainId]["VRFCoordinatorV2Mock"]
         subscriptionId = network[chainId]["subscriptionId"]
     }
-    const enteranceFee = networkConfig[chainId]["enteranceFee"]
+    const entranceFee = networkConfig[chainId]["entranceFee"]
     const gasLane = networkConfig[chainId]["gasLane"]
     const callbackGasLimit = networkConfig[chainId]["callbackGasLimit"]
     const interval = networkConfig[chainId]["interval"]
     const args = [
         vrfCoordinatorV2Adress,
-        enteranceFee,
+        entranceFee,
         gasLane,
         subscriptionId,
         callbackGasLimit,
