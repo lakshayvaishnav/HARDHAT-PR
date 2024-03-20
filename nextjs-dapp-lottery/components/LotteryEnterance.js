@@ -7,6 +7,9 @@ import { useNotification } from "web3uikit";
 const LotteryEnterance = () => {
   const { chainId: chainHex, isWeb3Enabled } = useMoralis(); // pull out chainId object and rename it to chainHex
   const [entranceFee, setentranceFee] = useState("0");
+  const [numberOfPlayers, setnumberOfPlayers] = useState("0");
+  const [recentWinners, setrecentWinners] = useState("0");
+
   const dispatch = useNotification();
 
   const chainId = parseInt(chainHex);
@@ -20,6 +23,7 @@ const LotteryEnterance = () => {
   const handleSuccess = async function (tx) {
     await tx.wait(1);
     handleNewNotification(tx);
+    updateUI();
   };
 
   const handleNewNotification = function () {
@@ -47,19 +51,34 @@ const LotteryEnterance = () => {
     params: {},
   });
 
+  const { runContractFunction: getNumberOfPlayers } = useWeb3Contract({
+    abi: abi,
+    contractAddress: raffleAddress,
+    functionName: "getNumberOfPlayers",
+    params: {},
+  });
+
+  const { runContractFunction: getRecentWinner } = useWeb3Contract({
+    abi: abi,
+    contractAddress: raffleAddress,
+    functionName: "getRecentWinner",
+    params: {},
+  });
+
+  async function updateUI() {
+    console.log("update ui running ....");
+    const entranceFeeFromCall = JSON.stringify(await getEntranceFee());
+    const numPlayersFromCall = parseInt(await getNumberOfPlayers());
+    const recentWinnersFromCall = JSON.stringify(await getRecentWinner());
+    // for now use hardcoded value will see this later...
+    setentranceFee(100000000000);
+    setnumberOfPlayers(numPlayersFromCall);
+    setrecentWinners(recentWinnersFromCall);
+  }
+
   useEffect(() => {
     console.log("use effect running");
     if (isWeb3Enabled) {
-      // try to read the raffle enterance fee...
-      async function updateUI() {
-        const entranceFeeFromCall = JSON.stringify(await getEntranceFee());
-        console.log("Entrance fee ", entranceFeeFromCall);
-
-        // for now use hardcoded value will see this later...
-        setentranceFee(100000000000);
-
-        console.log("entranceFee :  ", entranceFee);
-      }
       updateUI();
     }
   }, [isWeb3Enabled]);
@@ -67,7 +86,7 @@ const LotteryEnterance = () => {
     <div>
       Hii from lotter enterance{" "}
       {raffleAddress ? (
-        <div>
+        <>
           Hii from LotteryEnterance Fees : {entranceFee} GWEI
           <button
             onClick={async function () {
@@ -79,10 +98,12 @@ const LotteryEnterance = () => {
           >
             Enter Raffle
           </button>
-        </div>
+        </>
       ) : (
         <div>no raffle address found</div>
       )}
+      <div>The current number of players is: {numberOfPlayers}</div>
+      <div>The most previous winner was: {recentWinners}</div>
     </div>
   );
 };
