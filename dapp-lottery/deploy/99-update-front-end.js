@@ -16,13 +16,14 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
 async function updateAbi(getNamedAccounts, deployments) {
     console.log("update abi running...")
     const raffle = await deployments.get("Raffle")
-    // console.log(raffle)
-    const iface = new ethers.Interface(raffle.abi)
-    // console.log(iface)
-    const formattedAbi = iface.format(ethers.formatEther)
+    // console.log("raffle abi ", raffle.abi)
+    // const iface = new ethers.Interface(raffle.abi)
+    // const formattedAbi = iface.format(ethers.formatEther)
+    // const formattedabi2 = raffle.Interface.format(ethers.FormatTypes.json)
     // console.log("formatted abi : ", formattedAbi)
+    // console.log("formatted abi2 : ", formattedabi2)
 
-    fs.writeFileSync(FRONT_END_ABI_FILE, JSON.stringify(formattedAbi))
+    fs.writeFileSync(FRONT_END_ABI_FILE, JSON.stringify(raffle.abi))
 }
 
 async function updateContractAddress(getNamedAccounts, deployments) {
