@@ -1,15 +1,17 @@
-const { getNamedAccounts, ethers } = require("hardhat")
+const { getNamedAccounts, deployments, ethers } = require("hardhat")
 
 const AMOUNT = ethers.parseEther("0.02")
-async function getweth() {
-    const { deployer } = getNamedAccounts()
-    // call the "deposit" function on the weth contract
-    // abi , address
+async function getWeth() {
+    console.log("script is runnging")
+    const { deploy, log } = deployments
+    const { deployer } = await getNamedAccounts()
+    const signer = await ethers.getSigner(deployer)
+    console.log("signer: ", signer)
 
     const iweth = await ethers.getContractAt(
         "IWeth",
         "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-        deployer
+        signer
     )
 
     const tx = await iweth.deposit({ value: AMOUNT })
@@ -19,5 +21,5 @@ async function getweth() {
 }
 
 module.exports = {
-    getweth,
+    getWeth,
 }
