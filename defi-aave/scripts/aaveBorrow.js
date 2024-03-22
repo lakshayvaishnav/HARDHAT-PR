@@ -21,7 +21,10 @@ async function main() {
 
     // ! TODO - borrow from aave.
     // ? how much we have borrowed , how much we can borrow , how much we have in collateral.
-    const { availableBorrowsETH, totalDebthETH } = await getBorrowUserData(lendingPool, signer)
+    const { availableBorrowsETH, totalDebtETH } = await getBorrowUserData(lendingPool, signer)
+    const daiPrice = await getDaiPrice(signer)
+    const amountToBorrow = availableBorrowsETH.toString() * 0.95 * (1 / parseInt(daiPrice))
+    console.log(` ** you can borrow ${amountToBorrow}`)
 }
 
 async function getBorrowUserData(lendingPool, account) {
@@ -30,7 +33,7 @@ async function getBorrowUserData(lendingPool, account) {
     console.log(`you have ${totalCollateralETH} worth of ETH depositied`)
     console.log(`you have ${totalDebtETH} worth of ETH borrowed `)
     console.log(`you can borrow ${availableBorrowsETH} worth of ETH`)
-    return { availableBorrowsETH, totalDebthETH }
+    return { availableBorrowsETH, totalDebtETH }
 }
 
 async function getLendingPool(account) {
@@ -50,6 +53,19 @@ async function approveErc20(erc20Address, spenderAddress, amount, signer) {
     txResponse = await erc20Token.approve(spenderAddress, amount)
     await txResponse.wait(1)
     console.log("Approved !")
+}
+
+// * we dont need it to connect it to signer because we are not sending any transaction we are only reading value
+// ! reading dont needs any signer.
+async function getDaiPrice(account) {
+    const daiEthPriceFeed = await ethers.getContractAt(
+        "AggregatorV3Interface",
+        "0x773616e4d11a78f511299002da57a0a94577f1f4",
+        account
+    )
+    const price = (await daiEthPriceFeed.latestRoundData())[1]
+    console.log(`the DAI/ETH price is ${price} `)
+    return price
 }
 
 main()
