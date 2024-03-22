@@ -5,6 +5,8 @@ async function main() {
     // the protocol treats everything as erc20 token
     await getWeth()
     const { deployer } = await getNamedAccounts()
+
+    //  !  TODO - able to deposit the collateral to aave which is our AMOUNT
     // lending pool adress provider  - 0xB53C1a33016B2DC2fF3653530bfF1848a515c8c5
     const signer = await ethers.getSigner(deployer)
     const lendingPool = await getLendingPool(signer)
@@ -16,6 +18,19 @@ async function main() {
     console.log("Depositing !")
     await lendingPool.deposit(wethTokenAddress, AMOUNT, signer, 0)
     console.log("Deposited !")
+
+    // ! TODO - borrow from aave.
+    // ? how much we have borrowed , how much we can borrow , how much we have in collateral.
+    const { availableBorrowsETH, totalDebthETH } = await getBorrowUserData(lendingPool, signer)
+}
+
+async function getBorrowUserData(lendingPool, account) {
+    const { totalCollateralETH, totalDebtETH, availableBorrowsETH } =
+        await lendingPool.getUserAccountData(account)
+    console.log(`you have ${totalCollateralETH} worth of ETH depositied`)
+    console.log(`you have ${totalDebtETH} worth of ETH borrowed `)
+    console.log(`you can borrow ${availableBorrowsETH} worth of ETH`)
+    return { availableBorrowsETH, totalDebthETH }
 }
 
 async function getLendingPool(account) {
